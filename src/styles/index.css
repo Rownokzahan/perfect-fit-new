@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #930150;
+  --color-secondary: #e59e53;
+
+  --color-success: #4caf50;
+  --color-warning: #ff9800;
+  --color-danger: #f44336;
+
+  --color-dark: #010101;
+  --color-dark-light: #5f5f5f;
+
+  --color-light: #f9f7f9;
+  --color-light-light: #fefefe;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-300, currentColor);
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role="button"]:disabled {
+    cursor: default;
+  }
+}
+
+@utility ui-container {
+  @apply max-w-384 mx-auto px-4 lg:px-[6%];
+}
+
+@utility animated-underline {
+  @apply relative py-1;
+}
+
+.animated-underline::before {
+  @apply h-px w-full bg-current absolute left-0 bottom-0;
+  content: "";
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 350ms ease-in;
+}
+
+.animated-underline:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
