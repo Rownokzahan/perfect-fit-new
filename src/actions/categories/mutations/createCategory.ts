@@ -5,6 +5,7 @@ import { uploadToImgBB } from "@/lib/services/imgbb";
 import { isImageFile } from "@/lib/utils/file";
 import CategoryModel from "@/models/CategoryModel";
 import { updateTag } from "next/cache";
+import { redirect } from "next/navigation";
 import slugify from "slugify";
 
 export type CreateCategoryPayload = {
@@ -12,15 +13,10 @@ export type CreateCategoryPayload = {
   image: File | string;
 };
 
-type CreateCategoryResult = {
-  success: boolean;
-  message: string;
-};
-
-const createCategory = async ({
+export const createCategory = async ({
   name,
   image,
-}: CreateCategoryPayload): Promise<CreateCategoryResult> => {
+}: CreateCategoryPayload) => {
   try {
     await connectToDatabase();
 
@@ -50,21 +46,18 @@ const createCategory = async ({
     // Upload image to ImgBB
     const imageUrl = await uploadToImgBB(image, slug);
 
-    const category = await CategoryModel.create({
+    await CategoryModel.create({
       name,
       image: imageUrl,
       slug,
     });
 
-    // Invalidate caches
+    // Invalidate cache
     updateTag("categories");
-    updateTag(`category-${category._id}`);
-
-    return { success: true, message: "Category created" };
   } catch (err) {
     console.error(err);
     return { success: false, message: "Failed to create category" };
   }
-};
 
-export default createCategory;
+  redirect(`/admin/categories`);
+};

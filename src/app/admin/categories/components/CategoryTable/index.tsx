@@ -1,7 +1,7 @@
 import NoCategoryFound from "../NoCategoryFound";
 import CategoryTableRow from "./CategoryTableRow";
 import CategoryTableContainer from "./CategoryTableContainer";
-import getCategories from "@/actions/categories/queries/getCategories";
+import { getCategories } from "@/actions/categories/queries/getCategories";
 
 const CategoryTable = async () => {
   const categories = await getCategories();

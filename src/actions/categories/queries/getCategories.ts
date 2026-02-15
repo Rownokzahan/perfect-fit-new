@@ -1,12 +1,11 @@
-"use cache";
-
 import { connectToDatabase } from "@/lib/db";
 import CategoryModel from "@/models/CategoryModel";
-import { cacheTag } from "next/cache";
 import { Category } from "@/types/category";
 import { toPlainObject } from "@/lib/utils/object";
+import { cacheTag } from "next/cache";
 
-const getCategories = async (): Promise<Category[]> => {
+export const getCategories = async (): Promise<Category[]> => {
+  "use cache";
   cacheTag("categories");
 
   try {
@@ -18,5 +17,3 @@ const getCategories = async (): Promise<Category[]> => {
     return [];
   }
 };
-
-export default getCategories;

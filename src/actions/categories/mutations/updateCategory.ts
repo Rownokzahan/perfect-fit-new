@@ -4,10 +4,9 @@ import { connectToDatabase } from "@/lib/db";
 import CategoryModel from "@/models/CategoryModel";
 import { Id } from "@/types";
 import slugify from "slugify";
-import { Category } from "@/types/category";
 import { updateTag } from "next/cache";
 import { uploadToImgBB } from "@/lib/services/imgbb";
-import { toPlainObject } from "@/lib/utils/object";
+import { redirect } from "next/navigation";
 
 export type UpdateCategoryPayload = {
   categoryId: Id;
@@ -15,17 +14,11 @@ export type UpdateCategoryPayload = {
   image: string | File;
 };
 
-export type UpdateCategoryResult = {
-  success: boolean;
-  message: string;
-  data?: Category;
-};
-
-const updateCategory = async ({
+export const updateCategory = async ({
   categoryId,
   name,
   image,
-}: UpdateCategoryPayload): Promise<UpdateCategoryResult> => {
+}: UpdateCategoryPayload) => {
   try {
     await connectToDatabase();
 
@@ -70,25 +63,20 @@ const updateCategory = async ({
       typeof image === "object" ? await uploadToImgBB(image, slug) : image;
 
     // Update category
-    const updatedCategory = await CategoryModel.findByIdAndUpdate(
+    await CategoryModel.findByIdAndUpdate(
       categoryId,
       { name, slug, image: imageUrl },
       { new: true, runValidators: true },
     );
 
-    // Update both single-item and list caches
     updateTag(`category-${categoryId}`);
     updateTag("categories");
-
-    return {
-      success: true,
-      message: "Category updated",
-      data: toPlainObject(updatedCategory),
-    };
   } catch (err) {
     console.error(err);
     return { success: false, message: "Failed to update category" };
   }
+
+  redirect(`/admin/categories`);
 };
 
 export default updateCategory;

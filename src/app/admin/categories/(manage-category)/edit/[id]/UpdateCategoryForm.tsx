@@ -7,7 +7,6 @@ import CategoryForm, {
   CategoryFormData,
 } from "@/components/forms/CategoryForm";
 import { Category } from "@/types/category";
-import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { UseFormReset } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -19,8 +18,6 @@ interface UpdateCategoryFormProps {
 const UpdateCategoryForm = ({ category }: UpdateCategoryFormProps) => {
   const { _id, name, image } = category || {};
   const [isPending, startTransition] = useTransition();
-
-  const router = useRouter();
 
   const handleUpdateCategory = async (
     data: CategoryFormData,
@@ -42,8 +39,6 @@ const UpdateCategoryForm = ({ category }: UpdateCategoryFormProps) => {
 
       if (result.success) {
         reset();
-        router.push("/admin/categories");
-        toast.success(result.message, { duration: 5000 });
       } else {
         toast.error(result.message, { duration: 5000 });
       }

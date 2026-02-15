@@ -1,6 +1,6 @@
 "use client";
 
-import deleteCategory from "@/actions/categories/mutations/deleteCategory";
+import { deleteCategory } from "@/actions/categories/mutations/deleteCategory";
 import { useConfirmDeleteModal } from "@/hooks/useConfirmDeleteModal";
 import { Id } from "@/types";
 import { useTransition } from "react";
@@ -26,10 +26,7 @@ const DeleteCategoryButton = ({ categoryId }: DeleteCategoryButtonProps) => {
 
     startTransition(async () => {
       const result = await deleteCategory(categoryId);
-
-      if (result.success) {
-        toast.success(result.message);
-      } else {
+      if (!!result?.success) {
         toast.error(result.message);
       }
     });

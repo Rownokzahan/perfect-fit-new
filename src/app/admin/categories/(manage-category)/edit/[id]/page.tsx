@@ -1,4 +1,4 @@
-import getCategoryById from "@/actions/categories/queries/getCategoryById";
+import { getCategoryById } from "@/actions/categories/queries/getCategoryById";
 import UpdateCategoryForm from "./UpdateCategoryForm";
 
 export const metadata = {
@@ -10,8 +10,9 @@ interface Params {
 }
 
 const EditCategoryPage = async ({ params }: Params) => {
-  const categoryId = (await params).id;
-  const category = await getCategoryById(categoryId);
+  const { id } = await params;
+
+  const category = await getCategoryById(id);
 
   if (!category) {
     return <div>Category Not Found</div>;
