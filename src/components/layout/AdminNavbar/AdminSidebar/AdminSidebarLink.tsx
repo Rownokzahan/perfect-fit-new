@@ -24,13 +24,14 @@ const AdminSidebarLink = ({ link }: AdminSidebarLinkProps) => {
       href={path}
       className={clsx(
         "w-full px-4 py-3 rounded flex items-center gap-4 duration-50",
-        isActive ? "bg-primary/20" : "hover:bg-primary/5"
+        isActive ? "bg-primary/20" : "hover:bg-primary/5",
       )}
+      prefetch={false}
     >
       <Icon
         className={clsx(
           "text-xl",
-          isActive ? "text-primary" : "text-dark-light"
+          isActive ? "text-primary" : "text-dark-light",
         )}
       />
 

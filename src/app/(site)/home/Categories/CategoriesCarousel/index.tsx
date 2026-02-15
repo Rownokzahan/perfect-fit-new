@@ -1,13 +1,9 @@
-import getCategories from "@/actions/categories/queries/getCategories";
+import { getCategories } from "@/actions/categories/queries/getCategories";
 import CategoryCard from "./CategoryCard";
 import Carousel from "@/components/ui/Carousel";
 import CarouselItem from "@/components/ui/Carousel/CarouselItem";
-import { cacheTag } from "next/cache";
 
 const CategoriesCarousel = async () => {
-  "use cache";
-  cacheTag("categories");
-
   const categories = await getCategories();
 
   return (

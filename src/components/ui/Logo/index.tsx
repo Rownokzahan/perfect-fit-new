@@ -5,6 +5,7 @@ const Logo = () => {
     <Link
       href={"/"}
       className="text-2xl font-semibold whitespace-nowrap space-x-2"
+      prefetch={false}
     >
       <span>Perfect</span>
       <span>Fit</span>
