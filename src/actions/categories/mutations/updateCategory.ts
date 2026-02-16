@@ -7,6 +7,8 @@ import slugify from "slugify";
 import { updateTag } from "next/cache";
 import { uploadToImgBB } from "@/lib/services/imgbb";
 import { redirect } from "next/navigation";
+import { isFile } from "@/lib/utils/file";
+import mongoose from "mongoose";
 
 export type UpdateCategoryPayload = {
   categoryId: Id;
@@ -19,6 +21,33 @@ export const updateCategory = async ({
   name,
   image,
 }: UpdateCategoryPayload) => {
+  // Basic validation
+
+  if (
+    !categoryId ||
+    typeof categoryId !== "string" ||
+    !mongoose.Types.ObjectId.isValid(categoryId)
+  ) {
+    return {
+      success: false,
+      message: "Invalid category ID",
+    };
+  }
+
+  if (!name || typeof name !== "string") {
+    return {
+      success: false,
+      message: "Name is required and must be a string.",
+    };
+  }
+
+  if (!image || (typeof image !== "string" && !isFile(image))) {
+    return {
+      success: false,
+      message: "Image is required and must be a string or valid file",
+    };
+  }
+
   try {
     await connectToDatabase();
 
@@ -28,34 +57,21 @@ export const updateCategory = async ({
       return { success: false, message: "Category not found" };
     }
 
-    // Validate name
-    if (!name || typeof name !== "string") {
-      return {
-        success: false,
-        message: "Name is required and must be a string.",
-      };
-    }
-
-    // Validate image
-    const isFile =
-      typeof image === "object" &&
-      typeof (image as File).arrayBuffer === "function";
-    if (!image || (typeof image !== "string" && !isFile)) {
-      return {
-        success: false,
-        message: "Image is required and must be a string or valid file",
-      };
-    }
-
     // Generate slug only if name changed
     let slug = existingCategory.slug;
+
     if (name !== existingCategory.name) {
       const baseSlug = slugify(name, { lower: true, strict: true });
-      slug = baseSlug;
+      let newSlug = baseSlug;
       let counter = 1;
-      while (await CategoryModel.exists({ slug, _id: { $ne: categoryId } })) {
-        slug = `${baseSlug}-${counter++}`;
+
+      while (
+        await CategoryModel.exists({ slug: newSlug, _id: { $ne: categoryId } })
+      ) {
+        newSlug = `${baseSlug}-${counter++}`;
       }
+
+      slug = newSlug;
     }
 
     // Handle image upload
@@ -76,6 +92,7 @@ export const updateCategory = async ({
     return { success: false, message: "Failed to update category" };
   }
 
+  // Redirect after success
   redirect(`/admin/categories`);
 };
 

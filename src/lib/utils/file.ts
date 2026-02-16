@@ -1,3 +1,3 @@
-export function isImageFile(file: unknown): boolean {
-  return file instanceof Blob;
-}
+export const isFile = (file: unknown): file is File => {
+  return file instanceof File;
+};

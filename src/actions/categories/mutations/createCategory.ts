@@ -2,7 +2,7 @@
 
 import { connectToDatabase } from "@/lib/db";
 import { uploadToImgBB } from "@/lib/services/imgbb";
-import { isImageFile } from "@/lib/utils/file";
+import { isFile } from "@/lib/utils/file";
 import CategoryModel from "@/models/CategoryModel";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -10,37 +10,38 @@ import slugify from "slugify";
 
 export type CreateCategoryPayload = {
   name: string;
-  image: File | string;
+  image: File;
 };
 
 export const createCategory = async ({
   name,
   image,
 }: CreateCategoryPayload) => {
+  // Basic validation
+  if (!name || typeof name !== "string") {
+    return {
+      success: false,
+      message: "Name is required and must be a string",
+    };
+  }
+
+  if (!image || !isFile(image)) {
+    return {
+      success: false,
+      message: "Image is required and must be a valid file",
+    };
+  }
+
   try {
     await connectToDatabase();
 
-    // Basic validation
-    if (!name || typeof name !== "string") {
-      return {
-        success: false,
-        message: "Name is required and must be a string",
-      };
-    }
-
-    if (typeof image === "string" || !isImageFile(image)) {
-      return {
-        success: false,
-        message: "Image is required and must be a valid file",
-      };
-    }
-
     // Generate unique slug
-    let slug = slugify(name, { lower: true, strict: true });
+    const baseSlug = slugify(name, { lower: true, strict: true });
+    let slug = baseSlug;
     let counter = 1;
 
     while (await CategoryModel.exists({ slug })) {
-      slug = `${slug}-${counter++}`;
+      slug = `${baseSlug}-${counter++}`;
     }
 
     // Upload image to ImgBB
@@ -59,5 +60,6 @@ export const createCategory = async ({
     return { success: false, message: "Failed to create category" };
   }
 
+  // Redirect after success
   redirect(`/admin/categories`);
 };
