@@ -1,21 +1,16 @@
 "use server";
 
 import { connectToDatabase } from "@/lib/db";
+import { validateId } from "@/lib/utils/validators";
 import CategoryModel from "@/models/CategoryModel";
 import { Id } from "@/types";
-import mongoose from "mongoose";
 import { updateTag } from "next/cache";
 
 export const deleteCategory = async (categoryId: Id) => {
-  if (
-    !categoryId ||
-    typeof categoryId !== "string" ||
-    !mongoose.Types.ObjectId.isValid(categoryId)
-  ) {
-    return {
-      success: false,
-      message: "Invalid category ID",
-    };
+  // Validate ID
+  const validation = validateId(categoryId, "Category ID");
+  if (!validation.valid) {
+    return { success: false, message: validation.message };
   }
 
   try {

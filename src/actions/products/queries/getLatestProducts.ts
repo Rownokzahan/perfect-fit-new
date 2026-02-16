@@ -6,7 +6,7 @@ import ProductModel from "@/models/ProductModel";
 import { cacheTag } from "next/cache";
 
 export const getLatestProducts = async () => {
-  cacheTag("latest-products");
+  cacheTag("products");
 
   try {
     await connectToDatabase();

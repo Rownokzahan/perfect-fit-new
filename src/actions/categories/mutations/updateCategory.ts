@@ -3,12 +3,15 @@
 import { connectToDatabase } from "@/lib/db";
 import CategoryModel from "@/models/CategoryModel";
 import { Id } from "@/types";
-import slugify from "slugify";
 import { updateTag } from "next/cache";
 import { uploadToImgBB } from "@/lib/services/imgbb";
 import { redirect } from "next/navigation";
-import { isFile } from "@/lib/utils/file";
-import mongoose from "mongoose";
+import {
+  validateId,
+  validateImageOrUrl,
+  validateNonEmptyString,
+} from "@/lib/utils/validators";
+import { generateUniqueSlug } from "@/lib/utils/slug";
 
 export type UpdateCategoryPayload = {
   categoryId: Id;
@@ -22,30 +25,14 @@ export const updateCategory = async ({
   image,
 }: UpdateCategoryPayload) => {
   // Basic validation
+  const validators = [
+    validateId(categoryId, "Category Id"),
+    validateNonEmptyString(name, "Category name"),
+    validateImageOrUrl(image, "Category image"),
+  ];
 
-  if (
-    !categoryId ||
-    typeof categoryId !== "string" ||
-    !mongoose.Types.ObjectId.isValid(categoryId)
-  ) {
-    return {
-      success: false,
-      message: "Invalid category ID",
-    };
-  }
-
-  if (!name || typeof name !== "string") {
-    return {
-      success: false,
-      message: "Name is required and must be a string.",
-    };
-  }
-
-  if (!image || (typeof image !== "string" && !isFile(image))) {
-    return {
-      success: false,
-      message: "Image is required and must be a string or valid file",
-    };
+  for (const v of validators) {
+    if (!v.valid) return { success: false, message: v.message };
   }
 
   try {
@@ -61,17 +48,11 @@ export const updateCategory = async ({
     let slug = existingCategory.slug;
 
     if (name !== existingCategory.name) {
-      const baseSlug = slugify(name, { lower: true, strict: true });
-      let newSlug = baseSlug;
-      let counter = 1;
-
-      while (
-        await CategoryModel.exists({ slug: newSlug, _id: { $ne: categoryId } })
-      ) {
-        newSlug = `${baseSlug}-${counter++}`;
-      }
-
-      slug = newSlug;
+      slug = await generateUniqueSlug({
+        Model: CategoryModel,
+        name,
+        excludeId: categoryId,
+      });
     }
 
     // Handle image upload

@@ -1,12 +1,18 @@
+"use server"
+
 import { connectToDatabase } from "@/lib/db";
 import { uploadToImgBB } from "@/lib/services/imgbb";
-import { isFile } from "@/lib/utils/file";
+import { generateUniqueSlug } from "@/lib/utils/slug";
+import {
+  validateFile,
+  validateId,
+  validateNonEmptyString,
+  validatePositiveNumber,
+} from "@/lib/utils/validators";
 import ProductModel from "@/models/ProductModel";
 import { Id } from "@/types";
-import { Types } from "mongoose";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import slugify from "slugify";
 
 interface CreateProductPayload {
   name: string;
@@ -22,42 +28,21 @@ export const createProduct = async ({
   categoryId,
 }: CreateProductPayload) => {
   // Basic validation
-  if (!name || typeof name !== "string") {
-    return {
-      success: false,
-      message: "Name is required and must be a string",
-    };
-  }
+  const validators = [
+    validateNonEmptyString(name, "Product name"),
+    validatePositiveNumber(price, "Product price"),
+    validateFile(image, "Product image"),
+    validateId(categoryId, "Category Id"),
+  ];
 
-  if (!price || isNaN(Number(price))) {
-    return {
-      success: false,
-      message: "Price is required and must be a number",
-    };
-  }
-
-  if (!image || !isFile(image)) {
-    return {
-      success: false,
-      message: "Image is required and must be a valid file",
-    };
-  }
-
-  if (!Types.ObjectId.isValid(categoryId)) {
-    return { success: false, message: "Invalid category ID" };
+  for (const v of validators) {
+    if (!v.valid) return { success: false, message: v.message };
   }
 
   try {
     await connectToDatabase();
 
-    // Generate unique slug
-    const baseSlug = slugify(name, { lower: true, strict: true });
-    let slug = baseSlug;
-    let counter = 1;
-
-    while (await ProductModel.exists({ slug })) {
-      slug = `${baseSlug}-${counter++}`;
-    }
+    const slug = await generateUniqueSlug({ Model: ProductModel, name });
 
     // Upload image to ImgBB
     const imageUrl = await uploadToImgBB(image, slug);

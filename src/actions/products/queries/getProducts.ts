@@ -1,9 +1,10 @@
 import { connectToDatabase } from "@/lib/db";
 import { toPlainObject } from "@/lib/utils/object";
 import ProductModel from "@/models/ProductModel";
+import { Product } from "@/types/product";
 import { cacheTag } from "next/cache";
 
-export const getProducts = async () => {
+export const getProducts = async (): Promise<Product[]> => {
   "use cache";
   cacheTag("products");
 

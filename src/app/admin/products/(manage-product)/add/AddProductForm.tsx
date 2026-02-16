@@ -31,7 +31,7 @@ const AddProductForm = ({ categories }: AddProductFormProps) => {
     startTransition(async () => {
       const result = await createProduct({
         name,
-        price,
+        price: Number(price), // input makes it string
         categoryId: category,
         image: firstImage,
       });

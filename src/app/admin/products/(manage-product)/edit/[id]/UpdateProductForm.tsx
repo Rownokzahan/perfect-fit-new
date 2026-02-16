@@ -22,10 +22,12 @@ const UpdateProductForm = ({ product, categories }: UpdateProductFormProps) => {
     data: ProductFormData,
     reset: UseFormReset<ProductFormData>,
   ) => {
+    const numericPrice = Number(data.price);
+
     if (
       name === data.name &&
       image === data.image &&
-      price === data.price &&
+      price === numericPrice &&
       category === data.category
     ) {
       toast.error("No changes made to the product.");
@@ -37,8 +39,8 @@ const UpdateProductForm = ({ product, categories }: UpdateProductFormProps) => {
         productId: _id,
         categoryId: data.category,
         name: data.name,
-        price: data.price,
-        image: data.image === "string" ? data.image : data.image[0],
+        price: numericPrice,
+        image: typeof data.image === "string" ? data.image : data.image[0],
       });
 
       if (result.success) {
@@ -59,7 +61,7 @@ const UpdateProductForm = ({ product, categories }: UpdateProductFormProps) => {
       defaultValues={{
         name,
         image,
-        price,
+        price: price.toString(),
         category: category?.toString() || "",
       }}
     />

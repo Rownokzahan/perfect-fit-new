@@ -9,7 +9,7 @@ import { Category } from "@/types/category";
 
 export interface ProductFormData {
   name: string;
-  price: number;
+  price: string;
   category: string;
   image: FileList | string;
 }

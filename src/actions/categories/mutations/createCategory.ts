@@ -2,11 +2,11 @@
 
 import { connectToDatabase } from "@/lib/db";
 import { uploadToImgBB } from "@/lib/services/imgbb";
-import { isFile } from "@/lib/utils/file";
+import { generateUniqueSlug } from "@/lib/utils/slug";
+import { validateFile, validateNonEmptyString } from "@/lib/utils/validators";
 import CategoryModel from "@/models/CategoryModel";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import slugify from "slugify";
 
 export type CreateCategoryPayload = {
   name: string;
@@ -17,40 +17,27 @@ export const createCategory = async ({
   name,
   image,
 }: CreateCategoryPayload) => {
-  // Basic validation
-  if (!name || typeof name !== "string") {
-    return {
-      success: false,
-      message: "Name is required and must be a string",
-    };
-  }
+  const validators = [
+    validateNonEmptyString(name, "Category Name"),
+    validateFile(image, "Category image"),
+  ];
 
-  if (!image || !isFile(image)) {
-    return {
-      success: false,
-      message: "Image is required and must be a valid file",
-    };
+  for (const v of validators) {
+    if (!v.valid) return { success: false, message: v.message };
   }
 
   try {
     await connectToDatabase();
 
-    // Generate unique slug
-    const baseSlug = slugify(name, { lower: true, strict: true });
-    let slug = baseSlug;
-    let counter = 1;
-
-    while (await CategoryModel.exists({ slug })) {
-      slug = `${baseSlug}-${counter++}`;
-    }
+    const slug = await generateUniqueSlug({ Model: CategoryModel, name });
 
     // Upload image to ImgBB
     const imageUrl = await uploadToImgBB(image, slug);
 
     await CategoryModel.create({
       name,
-      image: imageUrl,
       slug,
+      image: imageUrl,
     });
 
     // Invalidate cache

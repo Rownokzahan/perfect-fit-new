@@ -25,9 +25,9 @@ const DeleteCategoryButton = ({ categoryId }: DeleteCategoryButtonProps) => {
     }
 
     startTransition(async () => {
-      const result = await deleteCategory(categoryId);
-      if (!!result?.success) {
-        toast.error(result.message);
+      const error = await deleteCategory(categoryId);
+      if (error) {
+        toast.error(error.message);
       }
     });
   };

@@ -1,21 +1,16 @@
 "use server";
 
 import { connectToDatabase } from "@/lib/db";
+import { validateId } from "@/lib/utils/validators";
 import ProductModel from "@/models/ProductModel";
 import { Id } from "@/types";
-import mongoose from "mongoose";
 import { updateTag } from "next/cache";
 
 export const deleteProduct = async (productId: Id) => {
-  if (
-    !productId ||
-    typeof productId !== "string" ||
-    !mongoose.Types.ObjectId.isValid(productId)
-  ) {
-    return {
-      success: false,
-      message: "Invalid product ID",
-    };
+  // Validate ID
+  const validation = validateId(productId, "Product ID");
+  if (!validation.valid) {
+    return { success: false, message: validation.message };
   }
 
   try {

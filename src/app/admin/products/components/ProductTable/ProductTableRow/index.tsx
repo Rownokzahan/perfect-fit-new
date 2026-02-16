@@ -6,12 +6,10 @@ import { Product } from "@/types/product";
 
 interface AdminProductTableRowProps {
   product: Product;
-  refetchProducts: () => void;
 }
 
 const AdminProductTableRow = ({
   product,
-  refetchProducts,
 }: AdminProductTableRowProps) => {
   const { _id, image, name, price } = product || {};
 
@@ -42,7 +40,6 @@ const AdminProductTableRow = ({
 
           <DeleteProductButton
             productId={_id}
-            refetchProducts={refetchProducts}
           />
         </div>
       </td>
