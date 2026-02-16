@@ -1,15 +1,15 @@
 "use client";
 
-import { Dropdown, DropdownItem, DropdownNoItems } from "../Dropdown";
 import { useMemo, useState } from "react";
 import { Category } from "@/types/category";
 import useQueryParams from "@/hooks/useQueryParams";
+import { Dropdown, DropdownItem, DropdownNoItems } from "../../Dropdown";
 
-interface CategorySelectorProps {
+interface CategoryDropdownProps {
   categories: Category[];
 }
 
-const CategorySelector = ({ categories }: CategorySelectorProps) => {
+const CategoryDropdown = ({ categories }: CategoryDropdownProps) => {
   const { queryParams, setQueryParam } = useQueryParams();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -53,4 +53,4 @@ const CategorySelector = ({ categories }: CategorySelectorProps) => {
   );
 };
 
-export default CategorySelector;
+export default CategoryDropdown;

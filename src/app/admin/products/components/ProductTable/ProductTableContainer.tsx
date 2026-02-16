@@ -4,7 +4,7 @@ interface ProductTableContainerProps {
 
 const ProductTableContainer = ({ children }: ProductTableContainerProps) => {
   return (
-    <div className="max-h-full overflow-x-auto rounded border">
+    <div className="max-h-[calc(100dvh-362px)] sm:max-h-[calc(100dvh-322px)] overflow-auto rounded border">
       <table className="min-w-full h-full bg-light-light text-sm relative z-0">
         <thead className="rounded-t shadow-[0px_1px_0px_0px_rgba(209,213,220,1)] bg-gray-100 sticky z-10 top-0 text-left text-xs font-semibold uppercase tracking-wider text-dark/65">
           <tr>

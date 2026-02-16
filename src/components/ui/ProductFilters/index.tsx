@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import CategorySelector from "./CategorySelector";
 import SearchBar from "./SearchBar";
 import SortSelector from "./SortSelector";
+import DropdownSkeleton from "../Dropdown/DropdownSkeleton";
 
 const ProductFilters = () => {
   return (
@@ -8,7 +10,10 @@ const ProductFilters = () => {
       <SearchBar />
 
       <div className="min-w-0 flex items-center gap-4 lg:gap-8 overflow-ellipsis">
-        <CategorySelector categories={[]} />
+        <Suspense fallback={<DropdownSkeleton />}>
+          <CategorySelector />
+        </Suspense>
+
         <SortSelector />
       </div>
     </div>

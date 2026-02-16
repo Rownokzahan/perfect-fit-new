@@ -1,23 +1,15 @@
-"use client";
-
 import ProductTableRow from "./ProductTableRow";
 import ProductTableContainer from "./ProductTableContainer";
-import useProducts from "@/hooks/useProducts";
-import ProductTableSkeleton from "./ProductTableSkeleton";
 import NoProductFound from "./NoProductFound";
 import Pagination from "@/components/ui/Pagination";
+import { PaginatedProducts } from "@/types/product";
 
-const ProductTable = () => {
-  const {
-    products,
-    isProductsLoading,
-    refetchProducts,
-    pagination: { totalPages },
-  } = useProducts({ limit: 6 });
+interface ProductTableProps {
+  productsPromise: Promise<PaginatedProducts>;
+}
 
-  if (isProductsLoading) {
-    return <ProductTableSkeleton />;
-  }
+const ProductTable = async ({ productsPromise }: ProductTableProps) => {
+  const { products, pagination } = await productsPromise;
 
   if (products.length === 0) {
     return <NoProductFound />;
@@ -27,15 +19,11 @@ const ProductTable = () => {
     <>
       <ProductTableContainer>
         {products.map((product) => (
-          <ProductTableRow
-            key={product.id}
-            product={product}
-            refetchProducts={refetchProducts}
-          />
+          <ProductTableRow key={product._id} product={product} />
         ))}
       </ProductTableContainer>
 
-      <Pagination totalPages={totalPages} />
+      <Pagination totalPages={pagination.totalPages} />
     </>
   );
 };

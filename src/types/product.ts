@@ -40,3 +40,13 @@ export interface CustomizedProduct {
   quantity: number;
   totalPrice: number;
 }
+
+export interface PaginatedProducts {
+  products: Product[];
+  pagination: {
+    totalItems: number;
+    totalPages: number;
+    page: number;
+    limit: number;
+  };
+}

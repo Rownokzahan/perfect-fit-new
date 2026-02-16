@@ -27,7 +27,7 @@ const Pagination = ({ totalPages }: PaginationProps) => {
   );
 
   return (
-    <div className="flex items-center justify-center gap-2 my-12 flex-wrap">
+    <div className="flex items-center justify-center gap-2 my-8 flex-wrap">
       {/* Prev Button */}
       <button
         onClick={() => updatePage(currentPage - 1)}
