@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import AuthModal from "@/components/modals/AuthModal";
 import ConfirmDeleteModal from "@/components/modals/ConfirmDeleteModal";
 import { Suspense } from "react";
+import AddToCartModal from "@/components/modals/AddToCartModal";
 
 export const metadata: Metadata = {
   title: {
@@ -26,10 +27,8 @@ const RootLayout = ({
 
         <Suspense fallback={null}>
           <AuthModal />
-        </Suspense>
-
-        <Suspense fallback={null}>
           <ConfirmDeleteModal />
+          <AddToCartModal />
         </Suspense>
 
         <Toaster />

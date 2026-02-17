@@ -10,7 +10,7 @@ interface State {
 }
 
 interface Actions {
-  addToCart: (product: Omit<CustomizedProduct, "id">) => void;
+  addToCart: (product: Omit<CustomizedProduct, "_id">) => void;
   removeCartItem: (id: Id) => void;
   increaseCartItemQuantity: (id: Id) => void;
   decreaseCartItemQuantity: (id: Id) => void;
@@ -26,7 +26,7 @@ export const useCartStore = create<State & { actions: Actions }>()(
       actions: {
         addToCart: (product) =>
           set((state) => ({
-            items: [...state.items, { id: uuidv4(), ...product }],
+            items: [{ _id: uuidv4(), ...product }, ...state.items],
           })),
 
         removeCartItem: (id) =>

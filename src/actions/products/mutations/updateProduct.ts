@@ -67,7 +67,7 @@ export const updateProduct = async ({
       typeof image === "string" ? image : await uploadToImgBB(image, slug);
 
     // Update product
-    await ProductModel.findByIdAndUpdate(
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
       productId,
       {
         name,
@@ -79,6 +79,7 @@ export const updateProduct = async ({
       { new: true, runValidators: true },
     );
 
+    updateTag(`product-${updatedProduct.slug}`);
     updateTag(`product-${productId}`);
     updateTag("products");
   } catch (err) {
