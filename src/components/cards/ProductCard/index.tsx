@@ -2,13 +2,18 @@ import { Product } from "@/types/product";
 import Image from "next/image";
 import WishlistButton from "./WishlistButton";
 import Link from "next/link";
+import { getWishlistedProductIds } from "@/actions/wishlist/queries/getWishlistedProductIds";
 
 interface ProductCardProps {
   product: Product;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = async ({ product }: ProductCardProps) => {
   const { _id, slug, image, name, price } = product || {};
+
+  const wishlistIds = await getWishlistedProductIds();
+
+  console.log(wishlistIds);
 
   return (
     <article className="rounded-sm bg-light-light relative">
@@ -30,7 +35,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
       </Link>
 
-      <WishlistButton productId={_id} />
+      <WishlistButton
+        productId={_id}
+        isWishlisted={wishlistIds.includes(product._id)}
+      />
     </article>
   );
 };
