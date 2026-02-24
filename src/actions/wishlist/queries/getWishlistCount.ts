@@ -1,5 +1,5 @@
 import { connectToDatabase } from "@/lib/db";
-import { getGuestOrUserId } from "@/lib/utils/getGuestOrUserId";
+import { getUserOrGuestInfo } from "@/lib/utils/userOrGuestInfo";
 import WishlistModel from "@/models/WishlistModel";
 import { Id } from "@/types";
 import { cacheLife, cacheTag } from "next/cache";
@@ -24,11 +24,11 @@ const getCachedWishlistCount = async (ownerId: Id): Promise<number> => {
 };
 
 export const getWishlistCount = async () => {
-    const id = await getGuestOrUserId();
-  
-    if (!id) {
-      return 0;
-    }
-  
-    return getCachedWishlistCount(id);
-};  
+  const ownerInfo = await getUserOrGuestInfo();
+
+  if (!ownerInfo) {
+    return 0;
+  }
+
+  return getCachedWishlistCount(ownerInfo.ownerId);
+};

@@ -4,10 +4,12 @@ import Image from "next/image";
 
 interface DressDetailsProps {
   dress: Product;
+  isWishlisted: boolean;
 }
 
-const DressDetails = ({ dress }: DressDetailsProps) => {
+const DressDetails = ({ dress, isWishlisted }: DressDetailsProps) => {
   const { _id, image, name, price } = dress;
+
   return (
     <div className="w-full sm:w-8/12 mx-auto lg:w-full lg:h-[calc(100dvh-170px)] lg:sticky lg:top-12 lg:left-0">
       <figure className="w-full aspect-5/6 lg:h-[calc(100%-36px)] lg:aspect-auto relative">
@@ -20,7 +22,7 @@ const DressDetails = ({ dress }: DressDetailsProps) => {
           unoptimized
         />
 
-        <WishlistButton productId={_id} />
+        <WishlistButton productId={_id} isWishlisted={isWishlisted} />
       </figure>
 
       <div className="pt-2 flex items-start justify-between gap-4">

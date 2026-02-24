@@ -13,8 +13,6 @@ const ProductCard = async ({ product }: ProductCardProps) => {
 
   const wishlistIds = await getWishlistedProductIds();
 
-  console.log(wishlistIds);
-
   return (
     <article className="rounded-sm bg-light-light relative">
       <Link href={`/dresses/${slug}/customize`}>

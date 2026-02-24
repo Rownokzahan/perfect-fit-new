@@ -5,7 +5,7 @@ import { connectToDatabase } from "@/lib/db";
 import WishlistModel from "@/models/WishlistModel";
 import { Id } from "@/types";
 import { validateId } from "@/lib/utils/validators";
-import { getGuestOrUserId } from "@/lib/utils/getGuestOrUserId";
+import { getUserOrGuestInfo } from "@/lib/utils/userOrGuestInfo";
 
 export const removeFromWishlist = async (productId: Id) => {
   const validation = validateId(productId, "Product ID");
@@ -13,14 +13,16 @@ export const removeFromWishlist = async (productId: Id) => {
     return { error: true, message: validation.message };
   }
 
-  const ownerId = await getGuestOrUserId();
+  const ownerInfo = await getUserOrGuestInfo();
 
-  if (!ownerId) {
+  if (!ownerInfo) {
     return {
       error: true,
       message: "Session expired. Please refresh and try again.",
     };
   }
+
+  const { ownerId } = ownerInfo;
 
   try {
     await connectToDatabase();

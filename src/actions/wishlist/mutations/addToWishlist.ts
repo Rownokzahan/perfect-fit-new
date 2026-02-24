@@ -4,8 +4,11 @@ import { Types } from "mongoose";
 import { connectToDatabase } from "@/lib/db";
 import { validateId } from "@/lib/utils/validators";
 import WishlistModel from "@/models/WishlistModel";
-import { getGuestOrUserId } from "@/lib/utils/getGuestOrUserId";
 import { updateTag } from "next/cache";
+import {
+  createGuestInfo,
+  getUserOrGuestInfo,
+} from "@/lib/utils/userOrGuestInfo";
 
 export const addToWishlist = async (productId: string) => {
   const validation = validateId(productId, "Product ID");
@@ -13,14 +16,13 @@ export const addToWishlist = async (productId: string) => {
     return { error: true, message: validation.message };
   }
 
-  const ownerId = await getGuestOrUserId();
+  let ownerInfo = await getUserOrGuestInfo();
 
-  if (!ownerId) {
-    return {
-      error: true,
-      message: "Session expired. Please refresh and try again.",
-    };
+  if (!ownerInfo) {
+    ownerInfo = await createGuestInfo();
   }
+
+  const { ownerId, userType } = ownerInfo;
 
   try {
     await connectToDatabase();
@@ -33,7 +35,7 @@ export const addToWishlist = async (productId: string) => {
         "items.productId": { $ne: productObjectId },
       },
       {
-        $setOnInsert: { ownerId },
+        $setOnInsert: { ownerId, userType },
         $push: {
           items: {
             productId: productObjectId,
@@ -41,11 +43,7 @@ export const addToWishlist = async (productId: string) => {
           },
         },
       },
-      {
-        upsert: true,
-        runValidators: true,
-        setDefaultsOnInsert: true,
-      },
+      { upsert: true },
     );
 
     updateTag(`wishlist-${ownerId}`);

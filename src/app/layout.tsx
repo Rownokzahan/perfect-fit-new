@@ -6,6 +6,7 @@ import AuthModal from "@/components/modals/AuthModal";
 import ConfirmDeleteModal from "@/components/modals/ConfirmDeleteModal";
 import { Suspense } from "react";
 import AddToCartModal from "@/components/modals/AddToCartModal";
+import ConfirmLogoutModal from "@/components/modals/ConfirmLogoutModal";
 
 export const metadata: Metadata = {
   title: {
@@ -27,6 +28,7 @@ const RootLayout = ({
 
         <Suspense fallback={null}>
           <AuthModal />
+          <ConfirmLogoutModal />
           <ConfirmDeleteModal />
           <AddToCartModal />
         </Suspense>

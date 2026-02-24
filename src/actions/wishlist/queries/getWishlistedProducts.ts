@@ -1,6 +1,6 @@
 import { connectToDatabase } from "@/lib/db";
-import { getGuestOrUserId } from "@/lib/utils/getGuestOrUserId";
 import { toPlainObject } from "@/lib/utils/object";
+import { getUserOrGuestInfo } from "@/lib/utils/userOrGuestInfo";
 import WishlistModel from "@/models/WishlistModel";
 import { Id } from "@/types";
 import { Product } from "@/types/product";
@@ -38,11 +38,11 @@ const getCachedWishlistedProducts = async (ownerId: Id): Promise<Product[]> => {
 };
 
 export const getWishlistedProducts = async () => {
-  const id = await getGuestOrUserId();
+  const ownerInfo = await getUserOrGuestInfo();
 
-  if (!id) {
+  if (!ownerInfo) {
     return [];
   }
 
-  return getCachedWishlistedProducts(id);
+  return getCachedWishlistedProducts(ownerInfo.ownerId);
 };

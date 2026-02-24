@@ -8,8 +8,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import useModalById from "@/hooks/useModalById";
 import EmailField from "@/components/forms/components/EmailField";
 import toast from "react-hot-toast";
-import { useState } from "react";
+import { useTransition } from "react";
 import { signUp } from "@/lib/auth-client";
+import { mergeGuestWishlist } from "@/actions/wishlist/mutations/mergeGuestWishlist";
 
 interface SignupFormData {
   name: string;
@@ -25,7 +26,7 @@ const SignupForm = () => {
     reset,
   } = useForm<SignupFormData>();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("callbackUrl") ?? "/";
@@ -33,34 +34,38 @@ const SignupForm = () => {
 
   const { closeModal } = useModalById("authModal");
 
-  const handleSignup = async (data: SignupFormData) => {
-    const { name, email, password } = data;
+  const handleSignup = (data: SignupFormData) => {
+    startTransition(async () => {
+      try {
+        const { name, email, password } = data;
 
-    try {
-      setIsLoading(true);
+        const { error: signUpError } = await signUp.email({
+          name,
+          email,
+          password,
+        });
 
-      const { error } = await signUp.email({
-        name,
-        email,
-        password,
-      });
+        if (signUpError) {
+          toast.error(signUpError.message || "Signup failed");
+          console.error("Signup failed:", signUpError);
+          return;
+        }
 
-      if (error) {
-        toast.error(error.message || "Signup failed");
-        console.error("Signup failed:", error);
-        return;
+        const wishlistError = await mergeGuestWishlist();
+        if (wishlistError) {
+          console.warn("Wishlist merge error:", wishlistError.message);
+        }
+
+        reset();
+        closeModal();
+        router.push(redirectTo);
+
+        toast.success("Signup successful");
+      } catch (err) {
+        toast.error("Unexpected error occurred");
+        console.error(err);
       }
-
-      reset();
-      closeModal();
-      router.push(redirectTo);
-      toast.success("Signup successful");
-    } catch (err) {
-      toast.error("Unexpected error occurred");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (
@@ -77,7 +82,7 @@ const SignupForm = () => {
       <EmailField register={register} error={errors?.email} />
       <PasswordField register={register} error={errors?.password} />
 
-      <FormSubmitButton isFormSubmitting={isLoading} label="Sign up" />
+      <FormSubmitButton isFormSubmitting={isPending} label="Sign up" />
     </form>
   );
 };

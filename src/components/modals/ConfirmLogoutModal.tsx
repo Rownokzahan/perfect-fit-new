@@ -4,10 +4,10 @@ import useModalById from "@/hooks/useModalById";
 import Button from "../ui/Button";
 import Modal from "./Modal";
 import { LuLogOut } from "react-icons/lu";
-import { signOut } from "better-auth/api";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import { signOut } from "@/lib/auth-client";
 
 const ConfirmLogoutModal = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,8 +19,13 @@ const ConfirmLogoutModal = () => {
       setIsLoading(true);
       closeModal();
 
-      await signOut();
-      router.push("/");
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/"); // redirect to home page
+          },
+        },
+      });
     } catch (error) {
       toast.error("Unexpected error occurred");
       console.error(error);
