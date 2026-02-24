@@ -2,10 +2,10 @@
 
 import { auth } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db";
-import { getGuestId } from "@/lib/utils/guestId";
+import { getGuestId, removeGuestId } from "@/lib/utils/guestId";
 import WishlistModel from "@/models/WishlistModel";
 import { Types } from "mongoose";
-import { updateTag } from "next/cache";
+import { revalidateTag, updateTag } from "next/cache";
 import { headers } from "next/headers";
 
 export const mergeGuestWishlist = async () => {
@@ -37,6 +37,8 @@ export const mergeGuestWishlist = async () => {
         await WishlistModel.findOneAndDelete({ ownerId: guestId });
       }
 
+      await removeGuestId();
+      revalidateTag(`wishlist-${guestId}`, "max");
       updateTag(`wishlist-${userId}`);
       return {
         error: true,
@@ -70,8 +72,6 @@ export const mergeGuestWishlist = async () => {
 
       // Delete the guest wishlist after merging
       await WishlistModel.findByIdAndDelete(guestWishlist._id);
-
-      updateTag(`wishlist-${guestId}`);
     } else {
       // No user wishlist → create new one using guest items
       await WishlistModel.create({
@@ -81,6 +81,8 @@ export const mergeGuestWishlist = async () => {
       });
     }
 
+    await removeGuestId();
+    revalidateTag(`wishlist-${guestId}`, "max");
     updateTag(`wishlist-${userId}`);
   } catch (error) {
     console.error("Merge guest wishlist failed:", error);
