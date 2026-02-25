@@ -46,6 +46,10 @@ const UserIconButton = () => {
   const isAdmin = data?.user?.role === "admin";
 
   const toggleDropdown = () => {
+    if (isPending) {
+      return;
+    }
+
     if (isAuthenticated) {
       setIsOpen((prev) => !prev);
     } else {
@@ -53,13 +57,10 @@ const UserIconButton = () => {
     }
   };
 
-  if (isPending) {
-    return null;
-  }
-
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        disabled={isPending}
         onClick={toggleDropdown}
         aria-label="User menu"
         className="w-7 h-8 grid place-items-center"

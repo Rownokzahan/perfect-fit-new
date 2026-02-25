@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { MdClose } from "react-icons/md";
 
-interface NavigationMenuProps {
+interface NavMenuProps {
   isOpen: boolean;
   closeMenu: () => void;
 }
@@ -18,7 +18,7 @@ const NAV_ITEMS = [
   { label: "Contact Us", href: "/contact" },
 ];
 
-const NavigationMenu = ({ isOpen, closeMenu }: NavigationMenuProps) => {
+const NavMenu = ({ isOpen, closeMenu }: NavMenuProps) => {
   const pathname = usePathname();
   const { data } = useSession();
   const { openModal: openAuthModal } = useModalById("authModal");
@@ -121,4 +121,4 @@ const NavigationMenu = ({ isOpen, closeMenu }: NavigationMenuProps) => {
   );
 };
 
-export default NavigationMenu;
+export default NavMenu;

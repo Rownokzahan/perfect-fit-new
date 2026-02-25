@@ -1,6 +1,6 @@
 import Logo from "@/components/ui/Logo";
-import NavIcons from "../shared/NavIcons";
 import NavLinkDesktop from "./NavLinkDesktop";
+import NavIcons from "../NavIcons";
 
 const NavbarDesktop = () => {
   return (

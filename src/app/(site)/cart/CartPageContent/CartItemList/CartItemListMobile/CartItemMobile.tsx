@@ -3,7 +3,6 @@ import CartItemImage from "../shared/CartItemImage";
 import CartItemQuantity from "../shared/CartItemQuantity";
 import useCart from "@/hooks/useCart";
 import { FaRegHeart } from "react-icons/fa6";
-import useWishlist from "@/hooks/useWishlist";
 import toast from "react-hot-toast";
 import { CustomizedProduct } from "@/types/product";
 import CustomizedProductInfo from "@/components/ui/CustomizedProductInfo";
@@ -15,8 +14,6 @@ interface CartItemMobileProps {
 const CartItemMobile = ({ cartItem }: CartItemMobileProps) => {
   const { _id, totalPrice } = cartItem;
   const { removeCartItem } = useCart();
-  const { wishlist, addToWishlist } = useWishlist();
-
   const handleRemove = () => {
     removeCartItem(_id);
     toast.success("Item removed from cart.");
@@ -24,12 +21,12 @@ const CartItemMobile = ({ cartItem }: CartItemMobileProps) => {
 
   const handleMoveToWishlist = () => {
     removeCartItem(_id);
-    if (!wishlist.includes(_id)) {
-      addToWishlist(_id);
-      toast.success("Item moved to wishlist.");
-    } else {
-      toast("Item is already in your wishlist.");
-    }
+    // if (!wishlist.includes(_id)) {
+    //   addToWishlist(_id);
+    //   toast.success("Item moved to wishlist.");
+    // } else {
+    //   toast("Item is already in your wishlist.");
+    // }
   };
 
   return (
