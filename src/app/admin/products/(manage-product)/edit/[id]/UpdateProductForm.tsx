@@ -16,18 +16,22 @@ interface UpdateProductFormProps {
 const UpdateProductForm = ({ product, categories }: UpdateProductFormProps) => {
   const [isPending, startTransition] = useTransition();
 
-  const { _id, name, image, price, category } = product || {};
+  const { _id, name, description, image, price, stock, category } =
+    product || {};
 
   const handleUpdateProduct = async (
     data: ProductFormData,
     reset: UseFormReset<ProductFormData>,
   ) => {
     const numericPrice = Number(data.price);
+    const numericStock = Number(data.stock);
 
     if (
       name === data.name &&
+      description === data.description &&
       image === data.image &&
       price === numericPrice &&
+      stock === numericStock &&
       category === data.category
     ) {
       toast.error("No changes made to the product.");
@@ -39,7 +43,9 @@ const UpdateProductForm = ({ product, categories }: UpdateProductFormProps) => {
         productId: _id,
         categoryId: data.category,
         name: data.name,
+        description: data.description,
         price: numericPrice,
+        stock: numericStock,
         image: typeof data.image === "string" ? data.image : data.image[0],
       });
 
@@ -60,8 +66,10 @@ const UpdateProductForm = ({ product, categories }: UpdateProductFormProps) => {
       onSubmit={handleUpdateProduct}
       defaultValues={{
         name,
+        description,
         image,
         price: price.toString(),
+        stock: stock.toString(),
         category: category?.toString() || "",
       }}
     />

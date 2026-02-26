@@ -13,7 +13,10 @@ export const getProductById = async (
 
   try {
     await connectToDatabase();
-    const product = await ProductModel.findById(productId).lean();
+    const product = await ProductModel.findOne({
+      _id: productId,
+      status: "active",
+    }).lean();
 
     if (!product) {
       return null;

@@ -11,6 +11,7 @@ import {
 } from "@/lib/utils/validators";
 import ProductModel from "@/models/ProductModel";
 import { Id } from "@/types";
+import { Error } from "mongoose";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -18,7 +19,9 @@ interface UpdateProductPayload {
   productId: Id;
   categoryId: Id;
   name: string;
+  description?: string;
   price: number;
+  stock: number;
   image: File | string;
 }
 
@@ -26,7 +29,9 @@ export const updateProduct = async ({
   productId,
   categoryId,
   name,
+  description,
   price,
+  stock,
   image,
 }: UpdateProductPayload) => {
   // Basic validation
@@ -35,6 +40,7 @@ export const updateProduct = async ({
     validateId(categoryId, "Category Id"),
     validateNonEmptyString(name, "Product name"),
     validatePositiveNumber(price, "Product price"),
+    validatePositiveNumber(stock, "Product stock"),
     validateImageOrUrl(image, "Product image"),
   ];
 
@@ -72,19 +78,28 @@ export const updateProduct = async ({
       {
         name,
         slug,
+        description,
         price: Number(price),
+        stock: Number(stock),
         image: imageUrl,
         category: categoryId,
       },
       { new: true, runValidators: true },
     );
 
-    updateTag(`product-${updatedProduct.slug}`);
+    updateTag(`product-${updatedProduct?.slug}`);
     updateTag(`product-${productId}`);
     updateTag("products");
   } catch (err) {
+    if (err instanceof Error.ValidationError) {
+      const message = Object.values(err.errors)
+        .map((e) => e.message)
+        .join(", ");
+      return { success: false, message };
+    }
+
     console.error(err);
-    return { success: false, message: "Failed to update product" };
+    return { success: false, message: "Something went wrong." };
   }
 
   // Redirect after success

@@ -45,7 +45,11 @@ const InputField = ({
           placeholder={label}
           autoComplete="off"
           {...registerProps}
-          className={clsx(floatingInputClass, error && "border-red-600")}
+          className={clsx(
+            floatingInputClass,
+            "min-h-12.5",
+            error && "border-red-600",
+          )}
           rows={4}
         />
       ) : (
@@ -59,7 +63,7 @@ const InputField = ({
           className={clsx(
             floatingInputClass,
             isPasswordField && "pe-8",
-            error && "border-red-600"
+            error && "border-red-600",
           )}
         />
       )}

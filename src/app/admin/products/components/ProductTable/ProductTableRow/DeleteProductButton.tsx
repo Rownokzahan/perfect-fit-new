@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteProduct } from "@/actions/products/mutations/deleteProduct";
+import { softDeleteProduct } from "@/actions/products/mutations/softDeleteProduct";
 import { useConfirmDeleteModal } from "@/hooks/useConfirmDeleteModal";
 import { Id } from "@/types";
 import { useTransition } from "react";
@@ -17,7 +17,7 @@ const DeleteProductButton = ({ productId }: DeleteProductButtonProps) => {
 
   const handleDelete = async () => {
     const confirmed = await confirmDelete(
-      "Are you sure you want to delete this product?",
+      "Are you sure you want to soft delete this product?",
     );
 
     if (!confirmed) {
@@ -25,7 +25,7 @@ const DeleteProductButton = ({ productId }: DeleteProductButtonProps) => {
     }
 
     startTransition(async () => {
-      const error = await deleteProduct(productId);
+      const error = await softDeleteProduct(productId);
       if (error) {
         toast.error(error.message);
       }

@@ -12,7 +12,10 @@ export const getProductBySlug = async (
 
   try {
     await connectToDatabase();
-    const product = await ProductModel.findOne({ slug: productSlug }).lean();
+    const product = await ProductModel.findOne({
+      slug: productSlug,
+      status: "active",
+    }).lean();
 
     if (!product) {
       return null;

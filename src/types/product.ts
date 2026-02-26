@@ -1,12 +1,17 @@
 import { Id } from ".";
 
+export type ProductStatus = "active" | "inactive" | "archived";
+
 export interface Product {
   _id: Id;
   name: string;
-  image: string; // URL or path to image
-  price: number;
   slug: string;
-  category: Id ;
+  description?: string;
+  image: string;
+  price: number;
+  stock: number;
+  category: Id;
+  status: ProductStatus;
 }
 
 export interface CustomizedProduct {

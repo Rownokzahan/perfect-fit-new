@@ -9,7 +9,9 @@ import { Category } from "@/types/category";
 
 export interface ProductFormData {
   name: string;
+  description: string;
   price: string;
+  stock: string;
   category: string;
   image: FileList | string;
 }
@@ -64,6 +66,15 @@ const ProductForm = ({
         />
 
         <InputField
+          id="description"
+          type="text"
+          label="Description"
+          registerProps={register("description")}
+          isTextArea={true}
+          error={errors?.description}
+        />
+
+        <InputField
           id="price"
           label="Price"
           type="number"
@@ -72,6 +83,17 @@ const ProductForm = ({
             min: { value: 0, message: "Price must be positive" },
           })}
           error={errors.price}
+        />
+
+        <InputField
+          id="stock"
+          label="Stock"
+          type="number"
+          registerProps={register("stock", {
+            required: "Stock is required",
+            min: { value: 0, message: "Stock must be positive" },
+          })}
+          error={errors.stock}
         />
 
         <ProductCategorySelect

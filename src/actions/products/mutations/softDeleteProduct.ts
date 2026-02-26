@@ -3,10 +3,9 @@
 import { connectToDatabase } from "@/lib/db";
 import { validateId } from "@/lib/utils/validators";
 import ProductModel from "@/models/ProductModel";
-import { Id } from "@/types";
 import { updateTag } from "next/cache";
 
-export const deleteProduct = async (productId: Id) => {
+export const softDeleteProduct = async (productId: string) => {
   // Validate ID
   const validation = validateId(productId, "Product ID");
   if (!validation.valid) {
@@ -15,15 +14,22 @@ export const deleteProduct = async (productId: Id) => {
 
   try {
     await connectToDatabase();
-    const deletedProduct = await ProductModel.findByIdAndDelete(productId);
+    // Soft delete: update status and deletedAt
+    const result = await ProductModel.updateOne(
+      { _id: productId, status: { $ne: "archived" } },
+      { status: "archived", deletedAt: new Date() },
+    );
 
-    if (!deletedProduct) {
-      return { success: false, message: "Product not found" };
+    if (result.matchedCount === 0) {
+      return {
+        success: false,
+        message: "Product not found or already archived",
+      };
     }
 
     updateTag("products");
   } catch (err) {
     console.error("Failed to delete product", err);
-    return { success: false, message: "Could not delete product" };
+    return { success: false, message: "Could not soft delete product" };
   }
 };

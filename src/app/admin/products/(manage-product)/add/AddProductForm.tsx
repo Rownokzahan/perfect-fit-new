@@ -19,7 +19,7 @@ const AddProductForm = ({ categories }: AddProductFormProps) => {
     data: ProductFormData,
     reset: UseFormReset<ProductFormData>,
   ) => {
-    const { name, price, image, category } = data;
+    const { name, description, price, stock, image, category } = data;
 
     const firstImage = image[0];
 
@@ -31,7 +31,9 @@ const AddProductForm = ({ categories }: AddProductFormProps) => {
     startTransition(async () => {
       const result = await createProduct({
         name,
+        description,
         price: Number(price), // input makes it string
+        stock: Number(stock), // input makes it string
         categoryId: category,
         image: firstImage,
       });

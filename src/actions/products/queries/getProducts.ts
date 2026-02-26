@@ -62,13 +62,13 @@ export const getProducts = async ({
     }
 
     const [products, totalItems] = await Promise.all([
-      ProductModel.find(filters)
+      ProductModel.find({ ...filters, status: "active" })
         .sort(sortOption)
         .skip(skip)
         .limit(currentLimit)
         .lean(),
 
-      ProductModel.countDocuments(filters),
+      ProductModel.countDocuments({ ...filters, status: "active" }),
     ]);
 
     return {

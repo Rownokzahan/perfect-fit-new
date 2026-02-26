@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { connectToDatabase } from "@/lib/db";
 import { uploadToImgBB } from "@/lib/services/imgbb";
@@ -11,19 +11,24 @@ import {
 } from "@/lib/utils/validators";
 import ProductModel from "@/models/ProductModel";
 import { Id } from "@/types";
+import { Error } from "mongoose";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 interface CreateProductPayload {
   name: string;
-  categoryId: Id;
+  description?: string;
   price: number;
+  stock: number;
+  categoryId: Id;
   image: File;
 }
 
 export const createProduct = async ({
   name,
+  description,
   price,
+  stock,
   image,
   categoryId,
 }: CreateProductPayload) => {
@@ -31,6 +36,7 @@ export const createProduct = async ({
   const validators = [
     validateNonEmptyString(name, "Product name"),
     validatePositiveNumber(price, "Product price"),
+    validatePositiveNumber(stock, "Product stock"),
     validateFile(image, "Product image"),
     validateId(categoryId, "Category Id"),
   ];
@@ -46,10 +52,13 @@ export const createProduct = async ({
 
     // Upload image to ImgBB
     const imageUrl = await uploadToImgBB(image, slug);
+
     await ProductModel.create({
       name,
+      description,
       slug,
       price: Number(price),
+      stock: Number(stock),
       image: imageUrl,
       category: categoryId,
     });
@@ -57,8 +66,15 @@ export const createProduct = async ({
     // Invalidate cache
     updateTag("products");
   } catch (err) {
+    if (err instanceof Error.ValidationError) {
+      const message = Object.values(err.errors)
+        .map((e) => e.message)
+        .join(", ");
+      return { success: false, message };
+    }
+
     console.error(err);
-    return { success: false, message: "Failed to create product" };
+    return { success: false, message: "Something went wrong." };
   }
 
   // Redirect after success
