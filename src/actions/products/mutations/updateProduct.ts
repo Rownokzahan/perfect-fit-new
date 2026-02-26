@@ -2,6 +2,7 @@
 
 import { connectToDatabase } from "@/lib/db";
 import { uploadToImgBB } from "@/lib/services/imgbb";
+import { requireAdmin } from "@/lib/utils/admin";
 import { generateUniqueSlug } from "@/lib/utils/slug";
 import {
   validateId,
@@ -25,7 +26,7 @@ interface UpdateProductPayload {
   image: File | string;
 }
 
-export const updateProduct = async ({
+export const updateProduct = requireAdmin(async ({
   productId,
   categoryId,
   name,
@@ -104,4 +105,4 @@ export const updateProduct = async ({
 
   // Redirect after success
   redirect(`/admin/products`);
-};
+});

@@ -12,6 +12,7 @@ import {
   validateNonEmptyString,
 } from "@/lib/utils/validators";
 import { generateUniqueSlug } from "@/lib/utils/slug";
+import { requireAdmin } from "@/lib/utils/admin";
 
 export type UpdateCategoryPayload = {
   categoryId: Id;
@@ -19,62 +20,60 @@ export type UpdateCategoryPayload = {
   image: string | File;
 };
 
-export const updateCategory = async ({
-  categoryId,
-  name,
-  image,
-}: UpdateCategoryPayload) => {
-  // Basic validation
-  const validators = [
-    validateId(categoryId, "Category Id"),
-    validateNonEmptyString(name, "Category name"),
-    validateImageOrUrl(image, "Category image"),
-  ];
+export const updateCategory = requireAdmin(
+  async ({ categoryId, name, image }: UpdateCategoryPayload) => {
+    // Basic validation
+    const validators = [
+      validateId(categoryId, "Category Id"),
+      validateNonEmptyString(name, "Category name"),
+      validateImageOrUrl(image, "Category image"),
+    ];
 
-  for (const v of validators) {
-    if (!v.valid) return { success: false, message: v.message };
-  }
-
-  try {
-    await connectToDatabase();
-
-    // Fetch the existing category
-    const existingCategory = await CategoryModel.findById(categoryId);
-    if (!existingCategory) {
-      return { success: false, message: "Category not found" };
+    for (const v of validators) {
+      if (!v.valid) return { success: false, message: v.message };
     }
 
-    // Generate slug only if name changed
-    let slug = existingCategory.slug;
+    try {
+      await connectToDatabase();
 
-    if (name !== existingCategory.name) {
-      slug = await generateUniqueSlug({
-        Model: CategoryModel,
-        name,
-        excludeId: categoryId,
-      });
+      // Fetch the existing category
+      const existingCategory = await CategoryModel.findById(categoryId);
+      if (!existingCategory) {
+        return { success: false, message: "Category not found" };
+      }
+
+      // Generate slug only if name changed
+      let slug = existingCategory.slug;
+
+      if (name !== existingCategory.name) {
+        slug = await generateUniqueSlug({
+          Model: CategoryModel,
+          name,
+          excludeId: categoryId,
+        });
+      }
+
+      // Handle image upload
+      const imageUrl =
+        typeof image === "object" ? await uploadToImgBB(image, slug) : image;
+
+      // Update category
+      await CategoryModel.findByIdAndUpdate(
+        categoryId,
+        { name, slug, image: imageUrl },
+        { new: true, runValidators: true },
+      );
+
+      updateTag(`category-${categoryId}`);
+      updateTag("categories");
+    } catch (err) {
+      console.error(err);
+      return { success: false, message: "Failed to update category" };
     }
 
-    // Handle image upload
-    const imageUrl =
-      typeof image === "object" ? await uploadToImgBB(image, slug) : image;
-
-    // Update category
-    await CategoryModel.findByIdAndUpdate(
-      categoryId,
-      { name, slug, image: imageUrl },
-      { new: true, runValidators: true },
-    );
-
-    updateTag(`category-${categoryId}`);
-    updateTag("categories");
-  } catch (err) {
-    console.error(err);
-    return { success: false, message: "Failed to update category" };
-  }
-
-  // Redirect after success
-  redirect(`/admin/categories`);
-};
+    // Redirect after success
+    redirect(`/admin/categories`);
+  },
+);
 
 export default updateCategory;

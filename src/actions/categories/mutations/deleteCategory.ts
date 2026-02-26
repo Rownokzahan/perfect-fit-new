@@ -1,12 +1,13 @@
 "use server";
 
 import { connectToDatabase } from "@/lib/db";
+import { requireAdmin } from "@/lib/utils/admin";
 import { validateId } from "@/lib/utils/validators";
 import CategoryModel from "@/models/CategoryModel";
 import { Id } from "@/types";
 import { updateTag } from "next/cache";
 
-export const deleteCategory = async (categoryId: Id) => {
+export const deleteCategory = requireAdmin(async (categoryId: Id) => {
   // Validate ID
   const validation = validateId(categoryId, "Category ID");
   if (!validation.valid) {
@@ -26,4 +27,4 @@ export const deleteCategory = async (categoryId: Id) => {
     console.error("Failed to delete category", err);
     return { success: false, message: "Could not delete category" };
   }
-};
+});

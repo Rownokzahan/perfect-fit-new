@@ -1,11 +1,12 @@
 "use server";
 
 import { connectToDatabase } from "@/lib/db";
+import { requireAdmin } from "@/lib/utils/admin";
 import { validateId } from "@/lib/utils/validators";
 import ProductModel from "@/models/ProductModel";
 import { updateTag } from "next/cache";
 
-export const softDeleteProduct = async (productId: string) => {
+export const softDeleteProduct = requireAdmin(async (productId: string) => {
   // Validate ID
   const validation = validateId(productId, "Product ID");
   if (!validation.valid) {
@@ -32,4 +33,4 @@ export const softDeleteProduct = async (productId: string) => {
     console.error("Failed to delete product", err);
     return { success: false, message: "Could not soft delete product" };
   }
-};
+});
