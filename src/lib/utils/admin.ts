@@ -1,6 +1,14 @@
 import { headers } from "next/headers";
 import { auth } from "../auth";
 
+/**
+ * Returns true if the current user is an admin, false otherwise
+ */
+export const isCurrentUserAdmin = async (): Promise<boolean> => {
+  const session = await auth.api.getSession({ headers: await headers() });
+  return !!session && session.user.role === "admin";
+};
+
 // Returned when a user is not an admin
 type AdminError = { error: true; message: string };
 
@@ -18,9 +26,8 @@ export const requireAdmin = <Args extends unknown[], Result>(
   fn: (...args: Args) => Promise<Result>,
 ) => {
   return async (...args: Args): Promise<Result | AdminError> => {
-    const session = await auth.api.getSession({ headers: await headers() });
-
-    if (!session || session.user.role !== "admin") {
+    const admin = await isCurrentUserAdmin();
+    if (!admin) {
       return { error: true, message: "Unauthorized" };
     }
 
