@@ -63,7 +63,7 @@ const UserIconButton = () => {
         disabled={isPending}
         onClick={toggleDropdown}
         aria-label="User menu"
-        className="w-7 h-8 grid place-items-center"
+        className="w-7 h-8 grid place-items-center disabled:opacity-50"
       >
         <IoPersonOutline size={20} className="relative mt-px" />
       </button>
